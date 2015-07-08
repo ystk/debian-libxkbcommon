@@ -1,0 +1,33 @@
+From e95fb475ebd203b030f17ddf9c55e487d3c929a0 Mon Sep 17 00:00:00 2001
+From: Pino Toscano <toscano.pino@tiscali.it>
+Date: Sat, 6 Sep 2014 11:05:44 +0300
+Subject: [PATCH] Remove <linux/input.h> include from test/x11comp.c
+
+libxkbcommon 0.4.3 introduces a new test, x11comp, which does not build
+on non-Linux OSes because of the unconditional <linux/input.h> include.
+
+This seems not needed even on Linux, so attached there is a simple patch
+to remove it.
+
+https://bugs.freedesktop.org/show_bug.cgi?id=83551
+
+Signed-off-by: Ran Benita <ran234@gmail.com>
+---
+ test/x11comp.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/test/x11comp.c b/test/x11comp.c
+index c30ed63..bc87a72 100644
+--- a/test/x11comp.c
++++ b/test/x11comp.c
+@@ -28,7 +28,6 @@
+ #include <signal.h>
+ #include <sys/types.h>
+ #include <sys/wait.h>
+-#include <linux/input.h>
+ 
+ #include "test.h"
+ #include "xkbcommon/xkbcommon-x11.h"
+-- 
+2.1.0
+

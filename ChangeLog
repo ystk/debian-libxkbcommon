@@ -1,0 +1,2102 @@
+commit c19661b965c0058a525f439abd7ac4c5a3532c7d
+Author: Pekka Paalanen <ppaalanen@gmail.com>
+Date:   Fri Dec 16 12:52:00 2011 +0000
+
+    Add xkbc_free_keymap helper
+    
+    Which just calls XkbcFreeKeyboard with the only arguments you'd ever
+    pass it.
+    
+    Signed-off-by: Pekka Paalanen <ppaalanen@gmail.com>
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 99e29de22d40c5c9161a0fd28fa2a9c75328386a
+Author: Rob Bradford <rob@linux.intel.com>
+Date:   Thu Oct 27 14:30:21 2011 +0100
+
+    xkbcomp: Copy the string into the buffer rather than updating pointer
+    
+    Avoids assigning the global pointer to a value that may only have a stack
+    lifetime:
+    
+    Fixes valgrind warnings such as:
+    
+    ==24795== Invalid read of size 1
+    ==24795==    at 0x4A06E9A: strcpy (mc_replace_strmem.c:311)
+    ==24795==    by 0x4E54D68: ProcessIncludeFile (misc.c:73)
+    ==24795==    by 0x4E59726: HandleIncludeSymbols.constprop.3 (symbols.c:829)
+    ==24795==    by 0x4E59D8E: HandleSymbolsFile (symbols.c:1673)
+    ==24795==    by 0x4E5A068: CompileSymbols (symbols.c:2211)
+    ==24795==    by 0x4E51A61: CompileKeymap (keymap.c:155)
+    ==24795==    by 0x4E5B410: xkb_compile_keymap_from_components (xkbcomp.c:236)
+    ==24795==    by 0x4E5B587: xkb_compile_keymap_from_rules (xkbcomp.c:161)
+    ==24795==    by 0x405ED2: display_create (window.c:2007)
+    ==24795==    by 0x403732: main (desktop-shell.c:320)
+    ==24795==  Address 0x7fefff0a0 is just below the stack ptr.  To suppress, use:
+    --workaround-gcc296-bugs=yes
+    ==24795==
+    ==24795== Source and destination overlap in strcpy(0x7fefff430, 0x7fefff430)
+    ==24795==    at 0x4A06F3D: strcpy (mc_replace_strmem.c:311)
+    ==24795==    by 0x4E54D68: ProcessIncludeFile (misc.c:73)
+    ==24795==    by 0x4E59726: HandleIncludeSymbols.constprop.3 (symbols.c:829)
+    ==24795==    by 0x4E59D8E: HandleSymbolsFile (symbols.c:1673)
+    ==24795==    by 0x4E5A068: CompileSymbols (symbols.c:2211)
+    ==24795==    by 0x4E51A61: CompileKeymap (keymap.c:155)
+    ==24795==    by 0x4E5B410: xkb_compile_keymap_from_components (xkbcomp.c:236)
+    ==24795==    by 0x4E5B587: xkb_compile_keymap_from_rules (xkbcomp.c:161)
+    ==24795==    by 0x405ED2: display_create (window.c:2007)
+    ==24795==    by 0x403732: main (desktop-shell.c:320)
+
+commit f91afe4f3ebcac3fb65a402c6c85cf1df5e2b52a
+Author: Cyril Brulebois <kibi@debian.org>
+Date:   Fri Jun 3 17:19:09 2011 +0200
+
+    Add prototype for CheckDefaultMap().
+    
+    Those warnings disappear accordingly:
+    |   CC     parseutils.lo
+    | parseutils.c:742: warning: no previous prototype for ‘CheckDefaultMap’
+    |   CC     xkbscan.lo
+    | xkbscan.l: In function ‘XKBParseString’:
+    | xkbscan.l:220: warning: implicit declaration of function ‘CheckDefaultMap’
+    | xkbscan.l:220: warning: nested extern declaration of ‘CheckDefaultMap’
+    
+    Reviewed-by: Dirk Wallenstein <halsmit@t-online.de>
+    Signed-off-by: Cyril Brulebois <kibi@debian.org>
+
+commit 05f5be9f6d3b8dfbb3af3eeb2b26800ea0515de2
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Mon Apr 4 09:21:55 2011 -0400
+
+    Also update required kbproto version in .pc.in file
+
+commit 9dd7dc6d8884a4e02527ef16c299c6253ea468b9
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Mar 18 00:33:48 2011 -0400
+
+    configure: Lower kbproto requirement to 1.0.4
+    
+    There's nothing in 1.0.5 that we need.
+
+commit dd0e8b70fb11a19887f8d05d1ed0c10921424a43
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Sat Jan 29 14:06:39 2011 -0500
+
+    Revert "config: remove incorrectly implemented visibility compiler option"
+    
+    This reverts commit bf9fdceef63507da889a22eb1a583d2b6376f5ea.
+    
+    We really only want to expose symbols that we explicitly mark as part of
+    the API.  This may not work with other platforms or compilers, but the
+    fact that private symbols are not available on Linux+GCC is enough of an
+    incentive to not use those.
+    
+    Signed-off-by: Kristian Høgsberg <krh@bitplanet.net>
+
+commit 621c2a7a8c4a14a5ddfdd6add735b78efd950f2b
+Author: Cyril Brulebois <kibi@debian.org>
+Date:   Sat Jan 29 14:24:46 2011 +0100
+
+    Get rid of unneeded <X11/Xlib.h> include.
+    
+    There's no need for this xlib include:
+    |   YACC   xkbparse.c
+    |   CC     xkbparse.lo
+    | xkbparse.y:98:22: error: X11/Xlib.h: No such file or directory
+    
+    Signed-off-by: Cyril Brulebois <kibi@debian.org>
+    Signed-off-by: Kristian Høgsberg <krh@bitplanet.net>
+
+commit a63e82be2a63d82b5b3802ae40efae2538461512
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Dec 17 21:14:54 2010 -0500
+
+    Rename XkbcInternAtom() to xkb_intern_atom() and export
+    
+    Signed-off-by: Kristian Høgsberg <krh@bitplanet.net>
+
+commit b9b0011994c2887625cdb23633d67a8fefd6b7cb
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Sat Dec 11 19:25:09 2010 -0500
+
+    config: update COPYING for software licensing
+    
+    The Copyright statements must appear in full.
+    When only the year was different, I added it in an existing
+    Copyright statement.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 1b6e022c97df129b7106a54a366faee64062cfb3
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Sat Dec 11 18:56:21 2010 -0500
+
+    config: set the default xkb config root based on xkeyboard-config module
+    
+    The default value ${dataroot}/X11/xkb only works if xkeyboard-config
+    has created the keymaps in that directory. Let's obtain the true final
+    value of where the keymaps are and use that as a default. In a production
+    environment this is the only value that can work.
+    
+    This new default value also has the merit of making the 'check' target
+    to work in distcheck which does not have a copy of the xkeyboard-config
+    keymaps in its sandbox based on ${dataroot}/X11/xkb. The test data
+    cannot find the "include" keymaps it needs.
+    .../libxkbcommon-0.1.0/_inst/share/X11/xkb
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 5e43e7b46c9b231742d7cb4ac2473879756aefd9
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 9 19:51:41 2010 -0500
+
+    config: distribute the .sh test programs and test data
+    
+    The test programs and the test data are required in the tarball
+    and needed for distcheck.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit f424bd8f5ffb9c5fb26f52ed70bdfbebf28bcc7a
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 9 19:45:26 2010 -0500
+
+    config: make it easier to add TEST programs
+    
+    LDADD is a Makefile wide variable.
+    Automake matches prog name with .c file by default
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit ff8e8f696a111ed8db51bdb9707f6cad564aaec1
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 9 18:25:18 2010 -0500
+
+    config: include: use nobase_include_HEADERS
+    
+    Slightly simpler.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 2422c41b8ecec5ca8a461a247bbe3c75f440d1e2
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 9 16:28:52 2010 -0500
+
+    config: add keysymdef and xf86keysym as dependencies of ks_tables.h
+    
+    This would cover the scenario where these headers file are updated,
+    for example, a new version is installed. Running 'make' again
+    on libxkbcommon should rebuild ks_tables.h.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 69e52ad901d6bb323c11b01ac1745233a9521b68
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 9 16:22:17 2010 -0500
+
+    config: makekeys prog should stand alone in the makekeys directory
+    
+    This program is a utility to generated a header file.
+    The header file it generates should not be located in the
+    directory where this utility program is compiled.
+    
+    Move the /makekeys dir as a sibling of /src.
+    This reduces the number of bi-directional relationships
+    between directories.
+    
+    Make corresponding makefiles simplifications.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 89377d5cd1ea1dc0d5ce925cddf3260e08ba3b6a
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Wed Dec 8 21:20:46 2010 -0500
+
+    config: use existing variables KEYSYMDEF_H and XF86KEYSYM_H
+    
+    These automake variables are not currently used.
+    The variable KS_HEADERS is not required anymore.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit bf9fdceef63507da889a22eb1a583d2b6376f5ea
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Wed Dec 8 20:37:26 2010 -0500
+
+    config: remove incorrectly implemented visibility compiler option
+    
+    CFLAGS is a user variable which should never be set by the configuration.
+    It allows the user to alter the configuration compiler options.
+    
+    The visibility is only set for GNU compiler, leaving libraries built
+    with other compilers with the wrong visibility.
+    
+    All other xorg libraries set visibilty using _X_EXPORT or _X_HIDDEN.
+    
+    For the time being, all the symbols will have the default visibility
+    which does not break anything.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit ec3fbfdf6dd53e531c53b79f634ed89cd4e776f5
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 18:22:38 2010 -0500
+
+    config: use xproto pkgconfig includex11dir variable
+    
+    Rather than appending X11 to the include dir.
+    It should be safe to use as it has been added in 2005.
+    
+    Use a local variable name matching the pkgconfig name.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 3c570b7ce99d1d9fe8d0d696176c8c0d6cd5b171
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 18:17:29 2010 -0500
+
+    config: relocate library functions check and comment
+    
+    No functional changes.
+    Follow Automake suggested order.
+    
+    Reviewed-by: Jeremy Huddleston <jeremyhu@apple.com>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 41664ba237e073efe16d88e7ff6593677b6ce6c3
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 14:32:57 2010 -0500
+
+    config: remove PKG_PROG_PKG_CONFIG test
+    
+    If pkg-config is missing, the configuration fails while initializing
+    XORG_* macros:
+    
+    warning: PKG_PROG_PKG_CONFIG is m4_require'd but not m4_defun'd
+    line 11622: PKG_PROG_PKG_CONFIG: command not found
+    
+    The output is sufficient to locate the problem.
+    It is not possible, or very difficult, to not have pkg-config
+    installed as the whole desktop and countless other software
+    depends on it.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit f507660421c3f005dfba591166d5545464a5c282
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 11:09:13 2010 -0500
+
+    config: let Automake handle Lex and Yacc dist and cleaning
+    
+    BUILT_SOURCES and MAINTAINERCLEAN are not needed for lex and yacc
+    Note that xkbscan was missing on those lines.
+    
+    Automake generates all the rules to handle building, distribution
+    and cleaning.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit e2f9f51667cf88c398d4536cfcc6996e9d0aa62a
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 10:59:13 2010 -0500
+
+    config: allow to build tarball when yacc is missing
+    
+    Autoconf does not handle this scenario as well as Automake does.
+    If xkbparse.c is already there, do not abort the configuration
+    if yacc is missing as it is not needed.
+    
+    If both xkbparse.c and yacc are missing, abort configuration.
+    Yacc is a required tool to build the package.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 2c51e4b1957d331ec82019282d2f35f2ef19496d
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 10:42:21 2010 -0500
+
+    config: add the default README file.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 7ce1a6dca2ff55a0cda00c754a007f757fb5e37b
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 10:39:16 2010 -0500
+
+    config: add the INSTALL target for installation instructions
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 63e2719a8f1d61a4678207e9abcecd67087c31ac
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 10:33:23 2010 -0500
+
+    config: replace deprecated INCLUDES with AM_CPPFLAGS
+    
+    Fixes automake warning.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Reviewed-by: Kristian Høgsberg <krh@bitplanet.net>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit ceba14dc3eebb288862f1e6c8a7863895af859cb
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Tue Dec 7 10:23:18 2010 -0500
+
+    config: update subdirs .gitignore
+    
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit f75ff7d921d5807d1e5b0aaa248a4d86d8eccfc4
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Fri Dec 3 15:13:01 2010 -0500
+
+    config: remove m4/.gitignore now that toplevel one handles it all
+    
+    The -Im4 in Makefile.am will have to wait until the day
+    there is an m4 macro checked-in git in the m4 directory.
+    This does not prevent libtool to install its macros in m4.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 0bfae4149c684391e16b3b80443954691a209dff
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Fri Dec 3 14:50:14 2010 -0500
+
+    config: .gitignore: template with default values for components #24239
+    
+    This toplevel .gitignore covers all possible generated files
+    from autotools, compiler, linker, etc...
+    
+    It has been in use for over a year in all xorg modules and has
+    prevented a good number of patches.
+    
+    For example, in this module, src/stamp-h1 was not ignored even
+    if the .gitignore had just been updated. Files with a .patch
+    extension were not ignored which sometimes cause a patch to be
+    checked-in git accidentally.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 83f64da99332a2ccb1c4641a8a3848ef523d7f58
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Fri Dec 3 14:39:13 2010 -0500
+
+    config: remove AC_PROG_CC as it overrides AC_PROG_C_C99
+    
+    XORG_STRICT_OPTION from XORG_DEFAULT_OPTIONS calls
+    AC_PROG_C_C99. This sets gcc with -std=gnu99.
+    If AC_PROG_CC macro is called afterwards, it resets CC to gcc.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit a0512b28de3348d0e32295a77959fd2ed01ffb36
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 2 20:52:34 2010 -0500
+
+    config: initialize autoconf, automake and libtool
+    
+    Add missing AM_MAINTAINER_MODE, matching --enable-maintainer-mode
+    option in autogen.sh.
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 971d9a99556c66571b7eba3407c02178016248cd
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 2 20:42:34 2010 -0500
+
+    config: use XORG_DEFAULT_OPTION from util-macros version 1.8
+    
+    This will handle AM_SILENT_RULES such that it will not break
+    on earlier Autoconf versions.
+    It provides a host of other configuration items
+    
+    Acked-by: Daniel Stone <daniel@fooishbar.org>
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit 8562d9780813513a47bb7ff38acb6d7c2e45f3cc
+Author: Gaetan Nadon <memsize@videotron.ca>
+Date:   Thu Dec 2 20:35:35 2010 -0500
+
+    config: set Autoconf minimum version required to 2.60
+    
+    This is the current minimum version required for all X.Org modules.
+    The module can be configured with any higher version.
+    Autoconf features from version > 2.60 cannot be used.
+    
+    Signed-off-by: Gaetan Nadon <memsize@videotron.ca>
+
+commit f0456a832fd406d7d0c6bbcceccfc57e78160279
+Author: Jan Engelhardt <jengelh@medozas.de>
+Date:   Thu Nov 11 23:28:29 2010 +0100
+
+    Update .gitignore
+    
+    Limit exclusion of files to their respective directory
+    that they can appear in.
+    
+    Signed-off-by: Jan Engelhardt <jengelh@medozas.de>
+
+commit f8301ebc5697ce6c865b5a7007aca72f31fd9686
+Author: Jan Engelhardt <jengelh@medozas.de>
+Date:   Thu Nov 11 23:27:21 2010 +0100
+
+    xkbscan: resolve build warning/rpmlint error
+    
+    xkbscan.l: In function 'setScanState':
+    xkbscan.l:201:1: warning: control reaches end of non-void function
+    I: Program returns random data in a function
+    E: libxkbcommon no-return-in-nonvoid-function xkbscan.l:201
+    
+    Change return type of setScanState to void, since a return value is
+    never used by its callers.
+    
+    Signed-off-by: Jan Engelhardt <jengelh@medozas.de>
+
+commit d84da95f69562c4801fa16b5fb797d28841c2ab1
+Author: Jan Engelhardt <jengelh@medozas.de>
+Date:   Thu Nov 11 23:05:33 2010 +0100
+
+    build: run autoupdate
+    
+    Signed-off-by: Jan Engelhardt <jengelh@medozas.de>
+
+commit b86fc752727a82547b4a06959658f9e5dfa886a9
+Author: Jan Engelhardt <jengelh@medozas.de>
+Date:   Thu Nov 11 23:03:43 2010 +0100
+
+    build: use proper quoting in autogen.sh
+    
+    Signed-off-by: Jan Engelhardt <jengelh@medozas.de>
+
+commit 2b36543ab1e7ed4a2c7d49dce1da043e6984cded
+Author: Jan Engelhardt <jengelh@medozas.de>
+Date:   Thu Nov 11 23:02:11 2010 +0100
+
+    build: use AC_CONFIG_MACRO_DIR as per libtoolize warning
+    
+    libtoolize: Consider adding "AC_CONFIG_MACRO_DIR([m4])" to configure.ac and
+    libtoolize: rerunning libtoolize, to keep the correct libtool macros in-tree.
+    libtoolize: Consider adding "-I m4" to ACLOCAL_AMFLAGS in Makefile.am.
+    
+    Signed-off-by: Jan Engelhardt <jengelh@medozas.de>
+
+commit f94a64cc08b47cdbfdfea5b5756340246fc391ed
+Author: Jon TURNEY <jon.turney@dronecode.org.uk>
+Date:   Tue Oct 26 16:21:28 2010 +0100
+
+    Link with -no-undefined
+    
+    Use -no-undefined to assure libtool that the libxkbcommon library has
+    no unresolved symbols at link time, so that libtool will build a shared
+    library on platforms require that all symbols are resolved when the
+    library is linked.
+    
+    Signed-off-by: Jon TURNEY <jon.turney@dronecode.org.uk>
+
+commit 8d2c522f3156c3381d8530ce2346d1ec84fafe8d
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Thu Oct 21 21:34:41 2010 -0400
+
+    Don't check for xlib, we don't need it
+
+commit c88439dbf076ade1f6500d04b2db30e28a81c2d3
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Oct 20 22:27:07 2010 -0400
+
+    Update xkb->ctrls->num_groups when copying the keysyms
+    
+    This used to be set when we read an XKM file.
+
+commit 125691573ce4b28a2c65a234c612f91ce573f838
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Oct 20 15:57:45 2010 -0400
+
+    Restore compatible action structs
+    
+    This unbreaks the X server code to serialize an xkb_desc, but loses the
+    32 bit vmod fields.  Needs some work...
+
+commit a84c08795e1090905d8ca349c1c1773db2fde065
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Tue Oct 19 21:57:59 2010 -0400
+
+    Use flex for generating the scanner, add support for parsing from strings
+    
+    Signed-off-by: Kristian Høgsberg <krh@bitplanet.net>
+
+commit a2f115581d14a02d93c2803d992ddb37a209fd6d
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Tue Oct 19 15:16:50 2010 -0400
+
+    Add struct xkb_state
+
+commit e879828717a8b7bdf12efbbf9a1baeb20e1fcdd2
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Oct 8 15:33:18 2010 -0400
+
+    Don't return a static buffer in public API
+
+commit d202bc4462b4cca91d438b19c3293671f62e15a3
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Oct 8 15:07:44 2010 -0400
+
+    Pull in XKB_COMMON_* version of modifier masks
+    
+    This way we can use libxkbcommon without having to include X.h.
+
+commit 73ca959d7b1832b266fce7a18d12b74d95180343
+Author: Adam Jackson <ajax@redhat.com>
+Date:   Mon Sep 27 16:05:52 2010 -0400
+
+    Dead code removal and static markup
+    
+    Signed-off-by: Adam Jackson <ajax@redhat.com>
+
+commit fb05ee47bf02950aec63533587880461b70418fc
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Sep 3 20:35:28 2010 -0400
+
+    Remove libxkbfile dependency for real this time
+
+commit 20bfe1280d69702ea730bfe7ef6ee671deb923a1
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Sun Aug 29 21:30:10 2010 -0400
+
+    Use const char * in struct xkb_rule_names
+
+commit be2bd66181ce4b55a64d087ea875e99e1e3b856e
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Aug 25 14:51:52 2010 -0400
+
+    Pull in a few #defines from libxkbfile and lower kbproto requirement
+
+commit 351f8c6587bed26753370f8f5c351dd339aadbb0
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 15:05:21 2010 -0400
+
+    Drop Bool type
+    
+    It's a nightmare trying to avoid double definitions.
+
+commit b3805a2360c9dd7c73333a91245762e66a38c2cb
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 12:26:43 2010 -0400
+
+    Get rid of a few unused #defines in public header
+
+commit 97fbc348b00bd30faa934a8ae8145cbaac9db881
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 12:14:03 2010 -0400
+
+    Rename XkbRMLVOSet to struct xkb_rule_names
+
+commit 15f259993ec63c2ea692ae1b1eb52a20c4983c1b
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 12:10:05 2010 -0400
+
+    Move private structs and defines to private headers
+
+commit 3f0034a990acfa3587c975306a37f7b455fb3d62
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 11:50:01 2010 -0400
+
+    Rename public entry points to lowercase and underscore
+
+commit 5669e1a82d24af8ebb6653f75a80f8b11279a6fc
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Fri Jul 2 11:43:56 2010 -0400
+
+    Compile with -fvisibility=hidden when possible
+
+commit 9f6026867a7a3543efdee5d3051f160e67c0edd3
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Thu Jul 1 14:35:24 2010 -0400
+
+    Pull in enough structs and defines from XKBstr.h to only need XKB.h
+    
+    We want to move away from sharing implementation structs and let libX11
+    and libxkbcommon use each their own set of structs.
+
+commit 9d55d5bbf647d23ffdffeecc9111481d3f37d422
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 17:32:54 2010 -0400
+
+    Drop Xmd.h include now that we're using uint32_t
+
+commit 8e653493d0b485eb96ae1191fab2b5814b209f73
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 17:31:34 2010 -0400
+
+    Fix warning from CARD32 -> uint32_t conversion
+
+commit e10e16ad2fc37d2941c0d2cb4cfdb61891a380e1
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 17:20:56 2010 -0400
+
+    Constify XkbcAtomText()
+    
+    Atoms aren't mutable and this lets us put tbGetBuffer() back in the box.
+
+commit d95b289367c4c6cd95042db35c88a6deb20c925b
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 17:13:21 2010 -0400
+
+    Make XkbcInitAtoms() call optional
+
+commit 0ece2cdbaf776a16f8864a7314ad2089a4b9980f
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 16:56:24 2010 -0400
+
+    Drop more malloc/free wrappers
+
+commit a76df86572a3227f118bfd2f9bbda7e731a31752
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 16:33:25 2010 -0400
+
+    Use the right action structs
+    
+    We were casting the union members to the wrong action structs (from kbproto).
+
+commit 1723ef1bc73fc24f242ac6fb428e8c9f3d29d98d
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 15:48:39 2010 -0400
+
+    Copy over missing action structs from kbproto
+
+commit 9258cc3dca504479233bcd4eaefb5a0930c998cb
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Wed Jun 30 13:31:21 2010 -0400
+
+    Rename Xkbc*Action to struct xkb_*_action
+
+commit 399d4bd6780778579c641d9c60040524327efeb7
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Mon Jun 28 06:58:01 2010 -0400
+
+    Drop malloc wrappers
+
+commit 47d3b3969b22aa8b59922363d1ca086d3c4156e6
+Author: Kristian Høgsberg <krh@bitplanet.net>
+Date:   Mon Jun 28 06:50:12 2010 -0400
+
+    Drop CARD32 and Opaque types
+
+commit 2fb329c9649a6e743416b6457bb0af9633ac1064
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Wed Jun 23 16:25:10 2010 +0100
+
+    Copy and duplicate XkbModsRec and XkbKTMapEntryRec
+    
+    Copy these types in so we can extend the vmod size.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit b74223eb50410941ec7589bffdc12183f4a23229
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Wed Jun 23 16:25:02 2010 +0100
+
+    fix mod size confusion
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 8693c2652c62211d98885bcaebb73877acbb125f
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 22 15:54:52 2010 +0100
+
+    Add really rudimentary rules caching support
+    
+    Keep the parsed form of the last-used rules file around, and reuse that
+    if we get asked for the same ruleset.  If not, bin it and cache the
+    other one.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 7257d4c89e52aa727df25564109cecc4d33b9543
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Mon Jun 21 14:28:34 2010 +0100
+
+    Use CARD32 instead of Atom, move geom headers in
+    
+    Use CARD32 instead of Atom/KeySym/et al to avoid type size confusion
+    between server and non-server code; relatedly, move the geometry headers
+    in from kbproto, so every non-simple type (i.e. structs containing
+    nothing more than basic types) is now copied into xkbcommon.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit b38525421f5b6f28b7f441ff8b2c3a97b047aae2
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Mon Jun 21 14:27:58 2010 +0100
+
+    Interp: More lazy keysym resolution
+    
+    Resolve the keysyms when we create an InterpDef, rather than directly
+    in the parser.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 2c4a045aca7c680a0315850a0e69784ac08f96a3
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Mon Jun 21 14:22:26 2010 +0100
+
+    Allow external atom databases
+    
+    Allow people to plug in an external atom database (e.g. the X server's),
+    so we don't have to migrate our own atoms over later.  We are a bit
+    over-keen on atoms at the moment, so it does pollute the atom database a
+    bit though.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 15b0db5492a2725d45011b8fef70006cc96fee0c
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Thu Jun 17 05:56:08 2010 +0100
+
+    Copy in XkbCompatMapRec and XkbSymInterpretRec
+    
+    These contain actions, so transition them ahead to XkbcAction and move
+    them into XKBcommon.h.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 60e7eeeba1d6c1b17cc71c36381251e633d6716e
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Thu Jun 17 03:16:09 2010 +0100
+
+    Use CARD32 instead of Atom, drag in XkbClientMapRec
+    
+    On 64-bit architectures, XID varies in size between the server (always
+    32 bits), and non-server (always unsigned long) for some inexplicable
+    reason.  Use CARD32 instead to avoid this horrible trap.
+    
+    This involves dragging in XkbClientMapRec so we don't get stuck in the
+    KeySym trap.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit d2d787df65d51c085dff0f9c4daf14bfffcaeeec
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Thu Jun 17 00:51:49 2010 +0100
+
+    Regroup actions into current vs. deprecated, resize vmod
+    
+    Use Xkbc* for all our actions that we intend to keep around, and Xkb*
+    for deprecated ones we can hopefully get rid of, at least internally.
+    
+    While we're at it, make vmods be a uint32_t.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit e564235b436159f23a77270752ffdee1867f27c8
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 19:43:14 2010 +0100
+
+    xkbcomp: Don't malloc() and free() most scanned tokens
+    
+    Use a constant buffer instead.  Sigh.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit f246db20f4d824b4286c00714b0c7e1b5a3d5b8f
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 19:40:31 2010 +0100
+
+    Fix compilation with DEBUG
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit acc467de9f8d96beea6d93a31fdb95b3a551cd11
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 19:39:15 2010 +0100
+
+    xkbcomp: Use fread() instead of getc()
+    
+    So, it turns out that if you're parsing a fairly large amount of data,
+    using getc() to get all the input rather than, say, read(), is some kind
+    of remarkably daft and unperformant idea.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 240a0c3409f2cd81394188175499087c37793a55
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 19:38:16 2010 +0100
+
+    xkbcomp: Lazy keysym parsing (avoid XStringToKeysym)
+    
+    Instead of calling XStringToKeysym on every keysym we parse, store it as
+    a string until we need to store it in an actual keymap.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 48baabeb38c0afc3dc071038662f43419b058cf4
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 19:30:30 2010 +0100
+
+    Atoms: Avoid allocations in XkbAtomText()
+    
+    XkbAtomGetString() returns a freshly-allocated string, whereas
+    XkbAtomText() returns the same in a temporary buffer.  XkbAtomText used
+    to call XkbAtomGetString() and then free the result, which seems quite
+    spectacularly pointless when you think about it.  Shuffle the atom code
+    around so we don't have to allocate for XkbAtomText().
+    
+    This changes semantics slightly wrt non-printable characters, but I
+    haven't been able to see any effect so far.  And it may well be ever so
+    slightly quicker.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 080a083fd26a05176b40f810f36ebe22b77d477c
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 16:43:10 2010 +0100
+
+    configure.ac: Enable automake silent rules by default
+    
+    This allows us to spot warnings much more easily.  Also, drop the
+    now-deprecated AM_MAINTAINER_MODE.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit a0e180b08382bb62415f2cd37c61ecfd99b00773
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 16:42:06 2010 +0100
+
+    Expose tbGetBuffer to the rest of libxkbcommon
+    
+    This will let us implement XkbAtomGetString on top of XkbAtomText,
+    instead of having the latter get a duplicated string, dump it into a
+    temporary buffer, and subsequently free it (sigh).
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 4346e0065b558a41957bcca670484cbe408717d3
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 16:41:10 2010 +0100
+
+    xkbcomp: keycodes: Silence gcc warnings
+    
+    It was right to warn us: some of these were actually bogus.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 5df3dff7412b3fafe1046880ed2356abd63fef0e
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:27:12 2010 +0100
+
+    xkbcomp: geometry: Plug numerous atom text & expr leaks
+    
+    This code is absolute misery.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 18039a6c0b7a20b05e1fff663981deb8473da218
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:25:40 2010 +0100
+
+    xkbcomp: Atom text and expr leak fixes part #973
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit a22386d402d9e40ca1a04406068458412d52b221
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:23:23 2010 +0100
+
+    xkbcomp: Don't leak atom text and string exprs, again
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 8904c6eea747628a93afcfc3017df537ab43223c
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:22:05 2010 +0100
+
+    xkbcomp: expr: Use XkbcAtomText instead of GetString
+    
+    This returns us a temporary string, rather than leaking the atom.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit ad0a3d7c52f94af306a29145560c9400fabf9f33
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:20:32 2010 +0100
+
+    xkbcomp: Don't leak atom text and string exprs
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit d20bdd3b9add0eae367dd666fba06378c195d687
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:14:58 2010 +0100
+
+    xkbcomp: vmod: Don't get and immediately intern atoms
+    
+    XkbcInternAtom(XkbcAtomGetString(atom)) has to be the most spectacularly
+    broken antipattern I've yet seen.  Just compare the atoms directly.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 50a037cacf75b106a2ee31680fb4588a8873a262
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Tue Jun 15 15:13:56 2010 +0100
+
+    xkbcomp: Replace open-coded strdup
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 5140250273ff02621ae286a68cd75b47a2695e43
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 18:15:02 2009 +1000
+
+    Add testcase for XkbcCanonicaliseComponents
+    
+    Should be reasonably thorough; the shell part is, however, quite
+    unpleasant.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 85b7f47d8a544dab204214de9c248f03e78261fe
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 18:13:52 2009 +1000
+
+    Add XkbcCanonicaliseComponents
+    
+    Canonicalises two sets of components (new and old), e.g.:
+    new: +bar
+    old: foo
+    result: foo+bar
+    
+    This is required as part of the spec, so clients can reuse part of the
+    device's old keymap.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 8ffa371395ac0f3c3942d60dd63509c534c877c0
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 18:13:24 2009 +1000
+
+    XKBcommon.h: Make header self-contained
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 8b5af79b7b3358783b3cfe5f023d01b58ce208e4
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:55:59 2009 +1000
+
+    Keysym: Add apallingly bad API documentation for keysym <-> string
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 70b64213ca620c0f4c50cd05b9a0667357b7d297
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:52:51 2009 +1000
+
+    Make keysym <-> string conversion public API
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 62eb167d56f021a1aa151c9431d320b16a0a3794
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:51:46 2009 +1000
+
+    XKB: Text: Use keysym <-> string conversion from keysym.c
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit a8bb86a48a9823ae1c0facfa3970e0854136b5a3
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:51:16 2009 +1000
+
+    Test: Keysym: Add tests for new keysym <-> string conversions
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit cdc735c8ca9ebc270429074cdf0205407d4b5d29
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:42:42 2009 +1000
+
+    Keysym: Fix conversion for Unicode and bare numbers
+    
+    Ensure that Unicode string representations are accepted and turned into
+    numbers, as well as hexadecimal numbers in 0xabcd1234 form; unknown
+    keysyms are output as 0xabcd1234 in string form.
+    
+    This also ensures that strings are never returned malloc()ed.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 8e3239a78f7e47321535a4917bddf4ce00d3d244
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:32:04 2009 +1000
+
+    KeySym: Actually handle NoSymbol
+    
+    Add NoSymbol into the keysym table, so keysym <-> string conversion works for
+    that, too; also eliminate special-casing of VoidSymbol.
+    
+    This will require special-casing in libX11 to preserve its API.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit a5ce9754dc3c8313e9d35bf86d31d78e8bf9653c
+Author: Daniel Stone <daniel@fooishbar.org>
+Date:   Sat Apr 25 14:29:23 2009 +1000
+
+    test: Fix srcdir != objdir build and test failures
+    
+    filecomp would fail because it couldn't find the input files, after
+    compilation failed due to missing includes.
+    
+    Signed-off-by: Daniel Stone <daniel@fooishbar.org>
+
+commit 4e854a21aa3d0dbb281db911849ed3d7cb73303c
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Apr 21 23:22:25 2009 -0700
+
+    listing: Drop unused deviceSpec argument
+    
+    The server might care about this, but ListComponents is just reading xkb
+    files.
+
+commit 481deea178259dddd3f07ed22d525796d1a2648e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Mon Apr 20 06:40:34 2009 -0700
+
+    xkbcomp: Another fairly major rewrite of the listing mode
+    
+    The listing code in xkbcomp had been setup to allocate a set of buffers
+    with file paths and then later parse through them to find which maps were
+    needed.
+    
+    All the allocation (with the additional allocation for the components
+    list) was making it really slow, so this patch makes everything simpler
+    by just generating the components list as we walk the directory tree.
+
+commit 18b43f8dfe641bf951b92d074b1cc6cee71d9869
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 19 16:30:36 2009 -0700
+
+    Rewrite listing code to generate XkbComponentListPtr
+    
+    In xkbcomp, the listing code printed out the xkb files to stdout and the
+    caller would parse the output. Here, we can just generate a
+    XkbComponentListPtr and pass it back.
+    
+    This should be a series of smaller commits, but there was no clean way to
+    do it since it's basically a complete rewrite except for the core map
+    matching logic.
+    
+    A lot of code used for special printing modes in xkbcomp has been
+    shedded. Callers can massage the output as they please.
+
+commit 559305a5cb3e9735203d8fd8fc10d8ec487b101f
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Apr 16 21:47:28 2009 -0700
+
+    xkbcomp: Kill unused listing code and make functions static
+    
+    Much of this was only called from xkbcomp and not used to generate
+    listings for the server.
+
+commit 5983a4e69d8f7ee85f6726b403b4bcc236c8d8b1
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Apr 16 20:01:13 2009 -0700
+
+    Scale back global variables
+    
+    Some of the global variables were either not used anymore or only used
+    in the listing code.
+
+commit 9520ea0eb3794228fc78844feb1f28f23b076432
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 12 12:30:12 2009 -0700
+
+    Add XkbNameMatchesPattern implementation from xkbfile
+    
+    The xkbcomp listing code matches a glob type pattern against installed
+    xkb files. This adds a Xkbc implementation of the pattern matching code.
+
+commit fa183ce354146d94a9e05402debdcfaf50fdde0f
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 12 12:15:05 2009 -0700
+
+    xkbcomp: Fix use of removed macros
+
+commit 3d4c4d06d560228414ecdc4944e46486e70b075e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 12 11:13:52 2009 -0700
+
+    Revert "xkbcomp: Remove listing sources"
+    
+    This reverts commit c4c9e36fbf4019d802323d9053f54cbfa6d3d5e5. It turns
+    out that the listing code is used to support the X_kbListComponents
+    request (via XkbListComponents).
+    
+    This will have to be refactored into some reasonable interface instead
+    of the current usage where the server reads xkbcomp stdout. Gross.
+
+commit 3dee8ac99970f4d9dfabee19a271816f1cfc38da
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 12 12:14:36 2009 -0700
+
+    misc: Coding-style cleanup
+
+commit 53ead9b575608b087ca06879021411a4df19f35c
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 11 10:35:44 2009 -0700
+
+    Use xkbpath API for locating rules
+    
+    Instead of hardcoding the XKB base directory when searching for rules in
+    the xkbcomp code, we can extend the xkbpath API to cover rules and reuse
+    it. That will make it more convenient if it's ever exposed so people can
+    set their XKB search paths in a reasonable way.
+
+commit c728d91bde2a05f8cd6b42bf1bc2c830ca75689b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 10 12:33:31 2009 -0700
+
+    Program and files for testing CompileKeymapFromFile
+    
+    A few simple test cases for verifying the operation of parsing a keymap
+    file and compiling a keyboard description from it.
+
+commit abbd14193502010cda1dcd2bc892343e29fe06b4
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 10 12:25:51 2009 -0700
+
+    Add interface to compile keyboard description from keymap files
+    
+    We need to support generating a keyboard description from a keymap file
+    because there are just some cases where RMLVO or ktcsg is not enough.
+    
+    The map choosing logic has been refactored into its own function and now
+    supports choosing a named or default keymap.
+
+commit e98eb80509476459f207d902a2a8052b967e2d93
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Apr 9 20:52:26 2009 -0700
+
+    test: Remove extraneous includes
+    
+    These programs don't actually use the internal API.
+
+commit 0280b10df90ff5fb5a38f9a61800338bcc15b8ca
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Apr 9 14:29:32 2009 -0700
+
+    Make XkbcInitAtoms externally accessible
+    
+    Applications (like the server) need to initialize the atoms system
+    before using the rest of the library. Maybe it should just init itself
+    implicitly.
+
+commit f5d37e279a807c6c0afd76910681e33152ed8efe
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Apr 8 17:59:15 2009 -0700
+
+    Constify public API
+    
+    There's no reason the arguments can't be const.
+
+commit babae389354e67b121a48894a82a62acc40b30ec
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Apr 8 17:54:55 2009 -0700
+
+    Change CompileKeymapFromRules to take XkbRMLVOSet
+    
+    Let's use a nice interface now that it's available from XKBrulescommon.h.
+
+commit 6a84a34d8689fb76b202f583452b97d57c68673d
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Apr 8 07:46:25 2009 -0700
+
+    Remove all non-public API from XKBcommon.h header
+    
+    The noble intention was to expose all the new API and new generic types
+    in the split out kbproto headers through XKBcommon.h. It turns out that
+    would be a massive amount of work in the server. Someday, but first just
+    wedging in XkbCompileKeymap* would be good.
+    
+    Most of the API is in new internal xkb*.h headers. In order to allow the
+    XKBcommon.h header to be used from the server, we can't pull in other
+    headers from kbproto since the server has its own copies. However, types
+    that are different (XkbDescRec, XkbAction) still have Xkbc equivalents
+    here, and I think they should be used in the server.
+
+commit b4a3c39b7e5141642f1146d971c26f7f79f13037
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Apr 7 19:56:41 2009 -0700
+
+    Remove KS macros available in XKBfilecommon.h now
+    
+    A couple of the XkbcKS* macros become redundant with XKBfilecommon.h
+    split out in kbproto.
+
+commit 5889cef8090e785465b6fec10b7e6a446a8c1656
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 5 20:27:35 2009 -0700
+
+    Require strdup and remove utils wrapper
+    
+    This kills a couple warnings from using the uStringDup wrapper. If you
+    don't have strdup on your platform, you have bigger issues.
+
+commit 8b100fc0a981cdf01115dc85ab1984f604be5655
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 5 15:15:20 2009 -0700
+
+    Add action datatypes as defined in the server
+    
+    Some of the XkbAction types are defined differently in the server, so we
+    add those to XKBcommon.h and use them here like XkbcDescPtr. We'll have
+    to deal with the impedance mismatch on the client side later.
+
+commit e0e77b71de550c1d2ae053eda4a9ab55db649e62
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Apr 5 09:30:15 2009 -0700
+
+    Coding style cleanup on key allocation functions
+
+commit 713c8f418f4d04fbf4e776a57a3997e89b15711b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:54:44 2009 -0700
+
+    test: Exercise compiling from components
+    
+    This could probably use a lot more real world test cases, but it does
+    the job for now.
+
+commit a2e597675b9b760b7d9a0be383c46c17f463b4e5
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:50:27 2009 -0700
+
+    xkbcomp: Don't say we're exiting when we're not
+
+commit 85039a0d76fc2af076aea24bd06d3af33625e9c3
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:31:55 2009 -0700
+
+    xkbcomp: Give keymap file empty name if none supplied
+    
+    Ensure that the keymap file topName is not NULL since it gets blindly
+    dereferenced later.
+
+commit 125ce76f5b10e58c75e9a242362f57856b4aaf4f
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:21:05 2009 -0700
+
+    xkbcomp: Ensure at least keycodes supplied in components
+    
+    It seems that at least a non-empty keycodes component is required to
+    compile a XkbcDescPtr.
+
+commit fdd8a9ec1b966785c2ff0e7124d485d323101b18
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:17:50 2009 -0700
+
+    xkbcomp: Don't dereference NULL VarDefsPtr
+
+commit 99d2f4a5eb858d3d906f3de1f78f1118e148e8d7
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 12:16:04 2009 -0700
+
+    xkbcomp: Refactor keymap file generator
+
+commit 4f736db995a593e4fbb692a62aa1c9cf85843bba
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 11:04:35 2009 -0700
+
+    test: Minor refactor to allow $EXEEXT in program names
+
+commit 8f9a6129904660cb3a83086887b87e27d1f75169
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 10:52:23 2009 -0700
+
+    test: Add logging and some intentionally failing cases
+    
+    We want to log the output of the tests rather than letting them go to
+    stderr. This allows tests we expect to fail to be run.
+
+commit 8269cbce81958363b4e278e26e3db3f811d4a8aa
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 10:02:39 2009 -0700
+
+    xkbcomp: Generating components requires rules _and_ layout
+    
+    This came from trial and error, but it seems that you can generate a
+    valid keymap with only rules and layout.
+
+commit fa96602d0fd78085bfd8f407ff025d42ef10f872
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:51:33 2009 -0700
+
+    xkbcomp: Fail when converting rules to components returns an error
+    
+    XkbcRF_GetComponents was returning an error but leaving the generated
+    components alone. This ensures that the broken XkbComponentNamesPtr is
+    freed and the error is passed up to the caller.
+
+commit e72fc29f337db6d183b90dcb70e394fb08753f0c
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:48:59 2009 -0700
+
+    xkbcomp: Cleanup error messages
+
+commit 83367a8d2d91bcfbb34080d64fc8b21b15c866c8
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:46:20 2009 -0700
+
+    xkbcomp: Ensure user has supplied a rules name
+
+commit 95dbbb8a7bb23af57364d73d76dd3a4e147b29a8
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:37:53 2009 -0700
+
+    rulescomp: Remove unneeded API
+
+commit 5d95a43ad06a43c07f91735ea46d43a944b735dc
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:29:43 2009 -0700
+
+    Refactor xkbpath so that it implicitly initializes
+    
+    Instead of requiring the user to call XkbInitIncludePath() and
+    XkbAddDefaultDirectoriesToPath(), all the path entry points now implicitly
+    initialize the path. When initializing, the default directories are added
+    so it's useful.
+    
+    This provides normal operation without exposing the xkbpath API. That
+    might happen later to allow apps to edit the XKB search path.
+
+commit 5c91062334dc9f2d902ea1d368d5374c9186a0ef
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:19:51 2009 -0700
+
+    Remove trailing spaces in source files
+
+commit 5cc55d7cbbb20971c2e8287a6fc95bd22a91ecdd
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 09:14:20 2009 -0700
+
+    Test compiler to simulate xkbcomp usage
+    
+    Added a test program, rulescomp, which takes a RMLVO set and generates a
+    XkbcDescPtr. This is essentially what the xserver will do, except that we
+    still need to access some xkbcomp internal API to make it work.
+
+commit 51eff3d939ccef896a548f9d50550045d140455d
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Apr 4 08:52:17 2009 -0700
+
+    Fix cleanup error in names allocation
+    
+    A conditional got reversed during the coding style cleanup.
+
+commit c38cdc5dedba48f85ed651eb76af864c74ccdd73
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 3 21:18:58 2009 -0700
+
+    xkbcomp: Ignore generated parser
+
+commit 3a709e399ec6509bc332763270925bac16eeb0b7
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 3 21:16:56 2009 -0700
+
+    xkbcomp: Don't segfault if the debug files aren't set
+    
+    Another interface that needs to be cleaned up.
+
+commit ec86ce1f1a9a0ad0c0891e320519431093c3cef7
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 3 20:34:41 2009 -0700
+
+    xkbcomp: Declare global debugging vars
+    
+    These will need to be sanitized at some point, but for now let's just get
+    the code running.
+
+commit c14c60bb37c0e82e92465eb29179bd95e6585c7b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 3 20:33:01 2009 -0700
+
+    xkbcomp: Back out strdup warning cleanup
+    
+    There are some spots in the code that use strdup without checking the
+    argument, so we need this to not segfault. Cleanup later...
+
+commit 71baa3d85aa8feb2767ccf3cfade2e57d786f3bc
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Apr 3 19:35:01 2009 -0700
+
+    Fix install path for XKBcommon.h
+
+commit 5216f0c92f183274ff8f80eff012c0e85549f077
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Apr 2 06:37:16 2009 -0700
+
+    Drop keysym.h pollution from XKBcommon.h
+    
+    There's really no need to pull this into a public header.
+
+commit a9822d87209357170d05cc9f5c98d8ca9497a065
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Apr 1 06:22:06 2009 -0700
+
+    Add xkbcommon pkg-config file
+
+commit db03c9b7e93d380480466f7e426783a04a3bfb4d
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 31 19:30:44 2009 -0700
+
+    xkbcomp: Clean up utils prototypes
+    
+    Includes using a macro for the gcc format attributes instead of repeated
+    ifdef's.
+
+commit a27e56b6fbeb5b09330f449340b5e7ad07cfd824
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 31 07:21:20 2009 -0700
+
+    xkbcomp: Remove duplicated macros
+
+commit 05daf09f188eab153f8807e4103d1d581d0fa162
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 31 07:09:47 2009 -0700
+
+    xkbcomp: Kill warnings about address always evaluating as true
+
+commit a1513292665a5f21fea62825f57d1cfb2c329e6a
+Merge: e128494 a8d936b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 31 06:57:06 2009 -0700
+
+    Merge commit 'tilt/master'
+
+commit a8d936bda5fc226959ae4949fd018cae28f16348
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 31 05:36:52 2009 -0700
+
+    Compile keyboard description from XKB rules, too
+    
+    XkbcCompileKeymapFromRules can be used to generate a XkbDescPtr from XKB
+    rules instead of using components. The previous XkbcCompileKeymap has
+    been renamed to XkbcCompileKeymapFromComponents.
+
+commit 94fd31746372226a62c5b0f80d32d47b3e9a77cb
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 11:25:44 2009 -0700
+
+    Add rules file parsing from xkbfile
+    
+    Copy over the Xkb_RF* rules parsing functions from xkbfile's maprules.c.
+    Eventually, this will be tied into xkbcomp's path searching utilities so
+    you don't need to supply a full path to the rules file. Also, it this
+    should eventually incorporate the server's RMLVOSet.
+
+commit e1284944cfdb47c70dc59b051cafe32c70283483
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 11:25:44 2009 -0700
+
+    Add rules rules file parsing from xkbfile
+    
+    Copy over the Xkb_RF* rules parsing functions from xkbfile's maprules.c.
+    Eventually, this will be tied into xkbcomp's path searching utilities so
+    you don't need to supply a full path to the rules file. Also, it this
+    should eventually incorporate the server's RMLVOSet.
+
+commit 3fc0dcc8167b2a306ba9a5146dade7b7b2387f63
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 08:55:18 2009 -0700
+
+    Generate keyboard description from components
+    
+    Finally, we can generate a XkbcDescPtr from a XkbComponentNamesPtr. This
+    involves turning the components into a parsed XKB file and then passing
+    it into the compiler. This first conversion needs more error handling.
+
+commit 1115d55549aa6a2df3b1d1e7ad557638dd5addb0
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 08:17:13 2009 -0700
+
+    xkbcomp: Include Xdefs.h for Atom in tokens.h
+
+commit 587a5d956f579fe779eea1d35a826410c71d0813
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 08:15:27 2009 -0700
+
+    xkbcomp: Add missing includes for Bool in xkbpath
+
+commit e86b31ce923c3f9cb28d483e002234064b94c24b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sun Mar 29 08:11:25 2009 -0700
+
+    Add XKBlib resizing functions
+    
+    These were originally in XKBMalloc.c.
+
+commit d43a7bf02fcda0a43112ee6a69a5d8e647dfe1a6
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 19:21:18 2009 -0700
+
+    Copy xkbfile IsUpper/IsLower macros
+    
+    xkbcomp was using Xlib's XConvertCase to check upper/lowercase. That's a
+    lot of code, so hopefully the xkbfile macros using _XkbKSCheckCase are
+    good enough. This also required that <X11/keysym.h> is included to get
+    all the XK_* definitions.
+
+commit eff1c53873e1190b703ee5f84b4240f070dd0927
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 19:00:13 2009 -0700
+
+    Copy XkbEnsureSafeMapName from xkbfile
+
+commit c4c9e36fbf4019d802323d9053f54cbfa6d3d5e5
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 18:50:29 2009 -0700
+
+    xkbcomp: Remove listing sources
+    
+    The xkbcomp listing APIs were only needed for the "xkblist" mode, which
+    won't be supported here.
+
+commit fe94593d022633514c43c48455451985e71e2a09
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 18:17:34 2009 -0700
+
+    malloc/misc/xkb: Coding style cleanup
+
+commit 5315e5d14a11004798fd2ef98f568afc3d21ebf4
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 17:55:46 2009 -0700
+
+    Add XKBlib API to support keytypes
+    
+    Added common variants of XkbComputeEffectiveMap, XkbInitCanonicalKeyTypes
+    and all their needed functions. A couple functions that were in alloc.c
+    moved to malloc.c to mirror the libX11 sources better.
+    
+    Original code in
+    
+    libX11/src/xkb/XKBMalloc.c
+    libX11/src/xkb/XKBMisc.c
+    libX11/src/xkb/XKB.c
+
+commit baa9581d81196df87819840d7769945900f3a18a
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 16:21:25 2009 -0700
+
+    geom: Coding-style cleanup
+
+commit 62482b9614112e1477264dc1d209ff3fb7ddd3fc
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 16:08:46 2009 -0700
+
+    Add geometry Compute API from XKBlib
+    
+    A small needed subset from libX11/src/xkb/XKBGeom.c.
+
+commit 28de09e51564f32fe96924889b32d08808b12677
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 15:51:06 2009 -0700
+
+    Add xkbcommon macro for XkbKSIsKeypad and XkbKSIsDeadKey(k)
+    
+    IsKeypad is used in symbols, but we'll just grab them both. It might be
+    better to split parts of XKBfile.h out eventually.
+
+commit a53b9b1ed397323bd2f0d2d2e9130fabad824b83
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 15:32:51 2009 -0700
+
+    Add XkbModIndexText replacement
+    
+    Now, I think we should have all the *Text functions we need.
+
+commit a59ce8f52575283bdb49c3f597807daa25a3492a
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 15:24:06 2009 -0700
+
+    Drop another unneeded format argument
+    
+    Almost cleared of XkbMessage...
+
+commit 54aea7fe8bb5455040b836d09fae7fb0d352a08b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 15:12:30 2009 -0700
+
+    Add VMod Text functions from xkbfile
+
+commit 46e5e164d6611c88e422dcb9f3bae0b0d926a08c
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 12:39:21 2009 -0700
+
+    Copy XkbAddGeom* functions from XKBlib
+    
+    These are needed by the geometry compiler in xkbcomp.
+
+commit b0acc97a9348ad1151416728ae391346df9d5b4e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 12:03:35 2009 -0700
+
+    xkbcomp: s/XStringToKeysym/XkbcStringToKeysym/
+
+commit 1f08ae1e56c8cd99485447146bfd8528e6576c2b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 11:56:35 2009 -0700
+
+    Expose all the geometry allocation subroutines
+    
+    We need a couple in xkbcomp, but they might also be needed externally,
+    too.
+
+commit 39d7be43c8056c4e81044d12cef652c528682bfe
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 11:45:05 2009 -0700
+
+    xkbcomp: Use xkbcommon allocation functions
+    
+    s/XkbAlloc/XkbcAlloc/ so we don't know XKBlib.
+
+commit b9335d5810e1504daa228cc21497aae511a0e3f3
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 14:09:36 2009 -0700
+
+    Kill off usage of Display
+    
+    The use of Display in xkbcomp always boiled down to passing it to
+    XkbInternAtom and XkbAtomGetString. This shouldn't be a problem here.
+
+commit 2671b777cf146d93f8963dac79964d9167c6de66
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 14:06:26 2009 -0700
+
+    Add more *Text functions from xkbfile
+    
+    This should cover all the usage in xkbcomp. The format arguments were
+    dropped except for the special case of XkbModMaskText, which needs to
+    write in XkbCFile format in HandleVModDef. This was just changed to a
+    Bool to avoid the need for the macros in XKBfile.h.
+    
+    The function prefixes have been renamed to be unique from xkbfile.
+
+commit 8544cde52e8b1e2cac21aa1ca9760c5a0f834472
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 06:56:26 2009 -0700
+
+    xkbcomp: Drop unused Display argument in Atom functions
+    
+    The xkbcommon Atom implementation doesn't take Display into account.
+
+commit 72df9bb35f1dde5ed0ef7aae048afeaf0cb8c961
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Sat Mar 28 06:32:08 2009 -0700
+
+    Move *Text APIs into libxkbcommon
+    
+    These seem like they might be generally useful, and more will be needed
+    from xkbfile.
+
+commit 18337008b5132d527d8c01bbc0da7571c17e6595
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:58:27 2009 -0700
+
+    libxkbcomp: Use the internal Atom implementation
+    
+    s/XkbInternAtom/XkbcInternAtom/ and s/XkbAtomGetString/XkbcAtomGetString/
+
+commit c277d3d438f0088420eedbc2badfe4ba021e6cc8
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:53:26 2009 -0700
+
+    libxkbcomp: s/Status/int/ since we don't have Xlib.h
+
+commit d5a9be653bcd950db4000e3d9167f7eb5c89cbf1
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:32:33 2009 -0700
+
+    libxkbcomp: Drop unused format field for *Text functions
+
+commit 6a578de9cbac1645633b424630594bd90c53f27e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:20:01 2009 -0700
+
+    libxkbcomp: Add non-xkbfile XkbActionTypeText
+
+commit 4fe322aa99de2d56c28d5ded14e16a980edb332e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:13:22 2009 -0700
+
+    libxkbcomp: s/XPointer/char */
+    
+    Replace XPointer with its definition since we don't have the privilege
+    of using Xlib.h. Why this is char * and not void *, I'll never know.
+
+commit 37769b5a100498aa19926dff9517a3bc5a606183
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 20:01:32 2009 -0700
+
+    libxkbcomp: s/XkbDescPtr/XkbcDescPtr/
+    
+    We need to use the keyboard description structure from XKBcommon.h since
+    it doesn't have the Display field.
+
+commit dd25bbc9acfa132bc1008a8aa6e2910c9e797689
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 19:54:50 2009 -0700
+
+    libxkbcomp: Eradicate XkbFileInfo usage
+    
+    The only real usage was in the frontend to generate a .xkm file. The
+    rest of the code just operated on the attached XkbDescPtr. Note that
+    here we've replaced the usage of the defined field in CompileKeymap with
+    the equivalent field in a XkbcDescPtr.
+
+commit f3677538f4823cf0abd14eaef02858d7aa675c33
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 19:30:11 2009 -0700
+
+    libxkbcomp: Include X.h and Xdefs.h for Atom and Bool
+
+commit 30e01032161db141524a4ff8cb88ab21a987dd9e
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 19:25:14 2009 -0700
+
+    libxkbcomp: Remove usage of client-side headers
+    
+    This will surely break things. Let's see just what we need to replace.
+
+commit a3809b1340998a6babd13cb161bb24f06f21bdd7
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 18:55:13 2009 -0700
+
+    xkbcomp: Add non-xkbfile XkbConfigText
+
+commit f2308e7e55233d843467067ac993bcd8fe30aeac
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 18:43:29 2009 -0700
+
+    Ignore files for xkbcomp
+
+commit 23caa60fa9638dc08da6d5ad3b77056130d65a43
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 18:43:12 2009 -0700
+
+    Ignore ks_tables.h in makekeys directory now
+
+commit 0c1bbb05d975cf7b3411259900500cc122fc136b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Mar 27 06:55:32 2009 -0700
+
+    Import xkbcomp sources for CompileKeymap
+    
+    A copy of the xkbcomp sources (except the frontend) have been copied in
+    to provide a means to compile a XkbDescPtr. This definitely doesn't
+    build or do the right thing yet.
+
+commit f4d8e2932cdd60653d2f762ad7502e6ec5710fe5
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 26 06:50:33 2009 -0700
+
+    Move ks_tables.h build into makekeys subdirectory
+    
+    This avoids the BUILT_SOURCES weirdness and forcing the build into the
+    makekeys subdirectory. Added a new make variable KS_HEADERS that lists
+    all the keysym headers we're going to parse.
+
+commit 4859304f6531b6bd5aa28ec0fb25ee3f537e8f48
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Mar 17 06:19:56 2009 -0700
+
+    Use X extern "C" guards around function declarations for public header
+
+commit 433a405c98f572c2620b614a1b8a1ef8d399b0e2
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Mar 25 19:17:33 2009 -0700
+
+    atom: Coding-style cleanup and refactor
+    
+    Some coding style nits were cleaned up. Additionally, most of the
+    functions have been collapsed from the libxkbfile version where there's
+    distinction with the Xlib atom functions when Display was set. Finally,
+    the InitAtoms function tests whether the table has already been created
+    by testing the pointer rather than using a static int.
+
+commit c88c0ba72531c0d1dddbfad9d18cfa0cc919fca7
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Mar 25 19:00:49 2009 -0700
+
+    Borrow atom implementation from libxkbfile
+    
+    We need an atom implementation not relying on XInternAtom and friends.
+    The original code is in
+    
+    libxkbfile/src/xkbatom.c
+
+commit 46faf56dedadffb446fa22a53e8068fe1e6c0e69
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Mar 25 15:41:21 2009 -0700
+
+    alloc/galloc: Coding style cleanup
+    
+    Mostly tab-to-space conversion plus a few style nits. Dropped the
+    register keywords as I'm pretty sure modern compilers can be trusted to
+    do the right thing.
+
+commit 1ff77ecd368a41f7b84d885a4f072091e7d552a8
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 5 18:20:15 2009 -0800
+
+    Rename headers to XKBcommon* and install in extensions directory
+    
+    Following the kbproto convention, the headers will be named XKBcommon.h
+    and XKBcommonint.h. Furthermore, they'll be installed in X11/extensions
+    directory with the rest of the XKB headers.
+
+commit 74173104034ba0633276e0479cfb53586874abe3
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 19 16:57:01 2009 -0700
+
+    Add XkbDescRec initializers and destructors
+    
+    Copies the code to initialize and destroy an XkbDescRec from libX11. The
+    original code is in
+    
+    libX11/src/xkb/XKBAlloc.c
+    libX11/src/xkb/XKBGAlloc.c
+    libX11/src/xkb/XKBMAlloc.c
+
+commit 3a700f8123477f5f93cbc46ba3d367246f93775c
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 19 17:16:13 2009 -0700
+
+    Use common XKB headers and add common type XkbcDescRec
+    
+    Switched to the common XKB headers which don't contain Xlib pollution.
+    A new common keyboard description type, XkbcDescRec, has been added.
+    This is the XkbDescRec definitions in xkbstr.h in the xserver since it
+    contains the defined field we'll need.
+
+commit d4ddac2b8d83b94483009ecf1ba43d3d981d6336
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 19 15:10:14 2009 -0700
+
+    Use XKB alloc macros internally
+    
+    These are used throughout the XKB code, but are defined in XKBsrv.h,
+    which we'd like to avoid. Internal definitions for True/False have also
+    been added since they're in Xlib.h
+
+commit 6aa78dedb2dfecb781d1bff133d6778cc62e2587
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 5 18:21:57 2009 -0800
+
+    Ignore generated ChangeLog
+
+commit 036c23eaf2cd4b0cfa348cbae63908806b94e52f
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Jan 20 07:33:14 2009 -0800
+
+    Use generated config.h header
+
+commit a45cdf4b0e0f326bc7aea046ed418dd033fce328
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Jan 23 18:12:04 2009 -0800
+
+    makekeys: Fix warning about not returning from function
+    
+    If we've gotten through the for loop in the alias functions, then we
+    don't have a match.
+
+commit ffa0ccfad904acce75e7abfb5813fe93f6910942
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Jan 23 18:09:31 2009 -0800
+
+    Use XORG_CWARNFLAGS for more warnings
+
+commit d60166b507096ade932d0881555e99f4dc8836bb
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Jan 23 18:05:12 2009 -0800
+
+    makekeys: No need for strncat
+
+commit ba0b312ac835f3a660d610d73fba89c6f92f7efc
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 20:20:02 2009 -0800
+
+    test: Add tests for XFree86 special keys
+    
+    Since the XFree86 special keysyms contain an underscore after the XF86
+    prefix, check to make sure they're handled correctly.
+
+commit 176b9cf524e75a63f63aed6809247847f467a833
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 20:18:33 2009 -0800
+
+    test: Consistently use upper case hex
+
+commit 49a06f926d1740744334904a99fe3adb45e7b4df
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 20:10:19 2009 -0800
+
+    test: Add convenience functions for xkey.sh
+
+commit e8c7f6853936a6c752c4f64da4ce906add4af2e0
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 19:59:24 2009 -0800
+
+    makekeys: Handle XFree86 special action keys
+    
+    For some reason, there are a set of keys that have an underscore after
+    the XF86 prefix when Xlib gets them from XKeysymDB.
+
+commit c005d63c581c965f4733ad38857409f14d5fe349
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 18:09:51 2009 -0800
+
+    makekeys: Always continue when no alias match found
+
+commit 498935c1bce71433250346eadffca554360056f6
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 18:06:48 2009 -0800
+
+    makekeys: Handle aliases in convenience functions
+    
+    There's no need to pass the alias buffer down.
+
+commit 6518e5482d3cbaea37ad0e5f1e7c767291ec9942
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 18:01:13 2009 -0800
+
+    makekeys: Prepend XF86 to XFree86 keysyms
+
+commit 79ddd7e5309afddbfa6fab23e0796b555998a2cf
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 08:25:39 2009 -0800
+
+    Refactor makekeys with some convenience functions
+    
+    All the nested ifs in the parsing code were confusing me.
+
+commit 49cda1187f6d484f00b0ae1cf01344afd6537101
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Jan 22 07:16:12 2009 -0800
+
+    Move makekeys to separate subdir
+    
+    The build is a little cleaner when makekeys has its own Makefile.
+
+commit b2737e9bfb6ac542a34885012958ae2de23a3417
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Jan 20 18:57:22 2009 -0800
+
+    Testing harness for keysym functions
+    
+    A test program and script have been added for checking the XkbCommon
+    keysym functions. This has already highlighted an error in handling of
+    keysyms from XF86keysym.h.
+
+commit 732bade2341d79ddd48d47963a8abef1fd1889fa
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Jan 20 18:52:04 2009 -0800
+
+    Fix CC_FOR_BUILD detection
+
+commit 56c3e7440ed92e03e46d2b7b77f14b917d8d9c53
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 19 11:34:54 2009 -0700
+
+    keysym: Coding style cleanup
+    
+    Mostly tab-to-space conversion plus a few style nits. Dropped the
+    register keywords as I'm pretty sure modern compilers can be trusted to
+    do the right thing.
+
+commit 83f198f1ae5c26a2d9a37579c9590c0aaab0416a
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Jan 20 07:46:12 2009 -0800
+
+    Initial implementation of keysym handlers
+    
+    Add the xkbcommon implementations of XKeysymToString and XStringToKeysym.
+    These symbols have the namespace prefix of Xkbc and are declared in
+    X11/XkbCommon.h.
+    
+    The implementation is taken directly from Xlib, but does not include the
+    XKeysymDB parsing and hashing yet (if it ever will). A couple type
+    conversions were needed to keep from using Xlib.h. See original files:
+    
+    libX11/src/KeysymStr.c
+    libX11/src/StrKeysym.c
+
+commit d0a4291e74663508ab6549c59d2f6a57425580ff
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Fri Jan 16 07:28:30 2009 -0800
+
+    makekeys: Handle XF86XK_ keysyms in addition to XK_ keysyms
+
+commit fa6a3d122d57b3ae89076741ec90ec8c1b78ce6b
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Jan 14 18:00:10 2009 -0800
+
+    Generate keysym tables from X and XF86 keysym definitions
+    
+    The keysym hash table ks_tables.h is generated by makekeys from
+    keysymdef.h and XF86keysym.h.
+
+commit 7f64541c30e66f4fb172420a1107b73abf5a3020
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Jan 14 18:07:06 2009 -0800
+
+    ks_tables: Remove table-specific #ifdefs and add header guard
+    
+    Since we'll be including ks_tables.h in a single file, we don't need to
+    make parts conditional. A header guard has been added just to be safe.
+
+commit ddc31789597d75b9d7f77ba76b498a9252dcecb3
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Thu Mar 19 10:59:32 2009 -0700
+
+    makekeys: Coding style cleanup
+    
+    Mostly tab-to-space conversion, but a couple other nits, too.
+
+commit 27fe8d1657f329068c574f1bc869dc725708f3af
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Wed Jan 14 07:35:10 2009 -0800
+
+    Add makekeys for creating keysym hash tables
+    
+    The makekeys utility is used to generate the keysym hash tables during
+    the build. We try to detect a build machine native compiler so the
+    tables can be generated when cross compiling.
+
+commit b58a95d037d2b4c7b5b6166684d6670f381f55a2
+Author: Dan Nicholson <dbn.lists@gmail.com>
+Date:   Tue Jan 13 18:25:35 2009 -0800
+
+    Initial autotools commit
